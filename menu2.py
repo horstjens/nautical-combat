@@ -227,12 +227,13 @@ class PygView(object):
                             print("Bye")
                             pygame.quit()
                             sys.exit()
-
-
+							
+							
             milliseconds = self.clock.tick(self.fps)
-            self.playtime += milliseconds / 1000.0
-            self.draw_text("FPS: {:6.3}{}PLAYTIME: {:8.3} SECONDS".format(
-                           self.clock.get_fps(), " "*5, self.playtime), color=(30, 120 ,18))
+            #self.playtime += milliseconds / 1000.0
+            self.draw_text("FPS: {:6.3}".format(self.clock.get_fps()))
+                     
+            #, self.playtime), color=(30, 120 ,18))
             pygame.draw.line(self.screen,(random.randint(0,255),random.randint(0,255), random.randint(0,255)),(50,self.height - 80),(self.width -50,self.height - 80) ,3)
             self.paint()
             pygame.display.flip()
