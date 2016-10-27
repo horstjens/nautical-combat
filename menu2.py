@@ -213,16 +213,16 @@ class PygView(object):
                             textscroller_vertical.PygView(text, self.width, self.height).run()
                         elif result == "How to win":
                             text="to win the game:\n shoot down enemies\n avoid catching bullets"
-                            textscroller_vertical.PygView(text, self.width, self.height, bg_filename=os.path.join("data", "800px-La_naissance_de_Venus.jpg")).run()
+                            textscroller_vertical.PygView(text, self.width, self.height).run()
                         elif result == "Simon Heppner":
                             text="-----SIMON HEPPNER-----\nWurde geboren 2006 am 3.5.\n(Also noch nicht gestorben)"
-                            textscroller_vertical.PygView(text, self.width, self.height).run()
+                            textscroller_vertical.PygView(text, self.width, self.height, textcolor=(200,0,200), bg_filename=os.path.join("data","map.png")).run()
                         elif result == "Horst Jens":
                             text="-----Horst Jens-----\nIsst gerne Joghurt! :)"
-                            textscroller_vertical.PygView(text, self.width, self.height).run()
+                            textscroller_vertical.PygView(text, self.width, self.height, textcolor=(200,0,0), bg_filename=os.path.join("data","Ubootdead.png")).run()
                         elif result == "Paolo Perfahl":
                             text="-----Paolo Perfahl-----\n Geboren 2003 1.7.\n (Also noch nicht gestorben)\nEr kann sehr gut am Computer\n und \n auch sonst malen und deshalb\nsind die meisten\nBilder von ihm\ngemalt worden."
-                            textscroller_vertical.PygView(text, self.width, self.height).run()
+                            textscroller_vertical.PygView(text, self.width, self.height, textcolor=(0,200,0), bg_filename=os.path.join("data","reef.png")).run()
                         elif result == "Quit":
                             print("Bye")
                             pygame.quit()
