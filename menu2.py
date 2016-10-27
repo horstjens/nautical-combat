@@ -92,7 +92,7 @@ class Menu(object):
 
 class PygView(object):
 
-    def __init__(self, width=640, height=400, fps=30):
+    def __init__(self, width=640, height=400, fps=30, cursortext="-->", cursorimage=None):
         """Initialize pygame, window, background, font,...
            default arguments
         """
@@ -100,6 +100,16 @@ class PygView(object):
         pygame.mixer.pre_init(44100, -16, 2, 2048)
 
         pygame.init()
+        if cursorimage is not None:
+            try:
+                self.cursorimage = pygame.image.load(cursorimage)
+            except:
+                print("Fehler beim Cursor image load")
+                self.cursorimage = None
+        else:
+            self.cursorimage = cursorimage
+        self.cursortext = cursortext
+            
 
         self.sound1 = pygame.mixer.Sound(os.path.join('data','select.wav'))
         self.sound2 = pygame.mixer.Sound(os.path.join('data','updown.wav'))
@@ -122,11 +132,18 @@ class PygView(object):
         for i in  m.items:
             n=m.items.index(i)
             if n==m.active_itemnumber:
-                self.draw_text("-->",50,  m.items.index(i)*30+10,(0,0,255))
-                self.draw_text(i, 100, m.items.index(i)*30+10,(0,0,255))
-            else:
-                self.draw_text(i, 100, m.items.index(i)*30+10)
-
+                if self.cursorimage is not None:
+                    self.screen.blit(self.cursorimage, (50, m.items.index(i)*30+10))
+                    # improve image height position
+                    #self.self.draw_text(self.cursortext,50,  m.items.index(i)*30+10,(0,0,255))
+                    #self.draw_text(i, 100, m.items.index(i)*30+10,(0,0,255))
+                else:
+                    # --> draw cursortext
+                    self.draw_text(self.cursortext,50,  m.items.index(i)*30+10,(0,0,255))
+                    #self.draw_text(i, 100, m.items.index(i)*30+10,(0,0,255))
+            #else:
+                #self.draw_text(i, 100, m.items.index(i)*30+10)
+            self.draw_text(i, 100, m.items.index(i)*30+10)
 
     def run(self):
         """The mainloop
@@ -227,8 +244,8 @@ class PygView(object):
                             print("Bye")
                             pygame.quit()
                             sys.exit()
-							
-							
+                            
+                            
             milliseconds = self.clock.tick(self.fps)
             #self.playtime += milliseconds / 1000.0
             self.draw_text("FPS: {:6.3}".format(self.clock.get_fps()))
@@ -259,4 +276,4 @@ if __name__ == '__main__':
 
     # call with width of window and fps
     m=Menu(Settings.menu)
-    PygView().run()
+    PygView(cursortext=">>>", cursorimage=os.path.join("data","icon.png")).run()
