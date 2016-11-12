@@ -92,7 +92,7 @@ class Menu(object):
 
 class PygView(object):
 
-    def __init__(self, width=640, height=400, fps=30, cursortext="-->", cursorimage=None):
+    def __init__(self, width=640, height=400, fps=30, cursortext="-->", cursorimage=None, backgroundimage = None):
         """Initialize pygame, window, background, font,...
            default arguments
         """
@@ -110,7 +110,7 @@ class PygView(object):
         else:
             self.cursorimage = cursorimage
         self.cursortext = cursortext
-            
+        self.backgroundimage = backgroundimage   
 
         self.sound1 = pygame.mixer.Sound(os.path.join('data','select.wav'))
         self.sound2 = pygame.mixer.Sound(os.path.join('data','updown.wav'))
@@ -125,8 +125,13 @@ class PygView(object):
 
     def set_resolution(self):
         self.screen = pygame.display.set_mode((self.width+5, self.height), pygame.DOUBLEBUF)
-        self.background = pygame.Surface(self.screen.get_size()).convert()
-        self.background.fill((255,255,255)) # fill background white
+        if self.backgroundimage is None:
+            self.background = pygame.Surface(self.screen.get_size()).convert()
+            self.background.fill((255,255,255)) # fill background white
+        else:
+            self.background = pygame.image.load(self.backgroundimage)
+            self.background = pygame.transform.scale(self.background, self.screen.get_size())
+            self.background.convert()
 
     def paint(self):
         """painting on the surface"""
@@ -134,17 +139,17 @@ class PygView(object):
             n=m.items.index(i)
             if n==m.active_itemnumber:
                 if self.cursorimage is not None:
-                    self.screen.blit(self.cursorimage, (10, m.items.index(i)*30+10-7))
+                    self.screen.blit(self.cursorimage, (10, m.items.index(i)*30+60-7))
                     # improve image height position
                     #self.self.draw_text(self.cursortext,50,  m.items.index(i)*30+10,(0,0,255))
                     #self.draw_text(i, 100, m.items.index(i)*30+10,(0,0,255))
                 else:
                     # --> draw cursortext
-                    self.draw_text(self.cursortext,10,  m.items.index(i)*30+10,(0,0,255))
+                    self.draw_text(self.cursortext,10,  m.items.index(i)*30+60,(0,0,255))
                     #self.draw_text(i, 100, m.items.index(i)*30+10,(0,0,255))
             #else:
                 #self.draw_text(i, 100, m.items.index(i)*30+10)
-            self.draw_text(i, 100, m.items.index(i)*30+10)
+            self.draw_text(i, 100, m.items.index(i)*30+60)
 
     def run(self):
         """The mainloop
@@ -260,7 +265,7 @@ class PygView(object):
         pygame.quit()
 
 
-    def draw_text(self, text ,x=50 , y=0,color=(27,135,177)):
+    def draw_text(self, text ,x=50 , y=0,color=(255,0,0)):
         if y==0:
             y= self.height - 50
 
@@ -277,4 +282,4 @@ if __name__ == '__main__':
 
     # call with width of window and fps
     m=Menu(Settings.menu)
-    PygView(cursortext=">>>", cursorimage=os.path.join("data","scrollimage.png")).run()
+    PygView(cursortext=">>>", cursorimage=os.path.join("data","scrollimage.png"), backgroundimage = os.path.join("data", "titlescreen.png")).run()
