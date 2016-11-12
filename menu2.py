@@ -103,6 +103,7 @@ class PygView(object):
         if cursorimage is not None:
             try:
                 self.cursorimage = pygame.image.load(cursorimage)
+                self.cursorimage = pygame.transform.smoothscale(self.cursorimage, (128, 32))
             except:
                 print("Fehler beim Cursor image load")
                 self.cursorimage = None
@@ -133,13 +134,13 @@ class PygView(object):
             n=m.items.index(i)
             if n==m.active_itemnumber:
                 if self.cursorimage is not None:
-                    self.screen.blit(self.cursorimage, (50, m.items.index(i)*30+10))
+                    self.screen.blit(self.cursorimage, (10, m.items.index(i)*30+10-7))
                     # improve image height position
                     #self.self.draw_text(self.cursortext,50,  m.items.index(i)*30+10,(0,0,255))
                     #self.draw_text(i, 100, m.items.index(i)*30+10,(0,0,255))
                 else:
                     # --> draw cursortext
-                    self.draw_text(self.cursortext,50,  m.items.index(i)*30+10,(0,0,255))
+                    self.draw_text(self.cursortext,10,  m.items.index(i)*30+10,(0,0,255))
                     #self.draw_text(i, 100, m.items.index(i)*30+10,(0,0,255))
             #else:
                 #self.draw_text(i, 100, m.items.index(i)*30+10)
@@ -276,4 +277,4 @@ if __name__ == '__main__':
 
     # call with width of window and fps
     m=Menu(Settings.menu)
-    PygView(cursortext=">>>", cursorimage=os.path.join("data","icon.png")).run()
+    PygView(cursortext=">>>", cursorimage=os.path.join("data","scrollimage.png")).run()
