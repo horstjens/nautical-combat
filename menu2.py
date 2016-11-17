@@ -110,8 +110,9 @@ class PygView(object):
         else:
             self.cursorimage = cursorimage
         self.cursortext = cursortext
-        self.backgroundimage = backgroundimage   
-
+        self.backgroundimage = backgroundimage 
+        self.backgrounds = []
+   
         self.sound1 = pygame.mixer.Sound(os.path.join('data','select.wav'))
         self.sound2 = pygame.mixer.Sound(os.path.join('data','updown.wav'))
         pygame.display.set_caption("Press ESC to quit")
@@ -128,10 +129,24 @@ class PygView(object):
         if self.backgroundimage is None:
             self.background = pygame.Surface(self.screen.get_size()).convert()
             self.background.fill((255,255,255)) # fill background white
+            
         else:
             self.background = pygame.image.load(self.backgroundimage)
             self.background = pygame.transform.scale(self.background, self.screen.get_size())
             self.background.convert()
+            for x in range(10):  # backgroundimage0 - backgroundimage9
+                filename = self.backgroundimage[:-4] + str(x) + self.backgroundimage[-4:]
+                try:
+                    image = pygame.image.load(filename)                 
+                    image = pygame.transform.scale(image, self.screen.get_size())
+                    image.convert()
+                    self.backgrounds.append(image)
+                except:
+                    print("no backgroundimage found for {}".format(filename))
+        self.backgrounds.append(self.background)
+        self.background = self.backgrounds[1]
+                    
+        
 
     def paint(self):
         """painting on the surface"""
@@ -202,7 +217,11 @@ class PygView(object):
                         #print(m.get_text())
                         print(result)
                         if result is None:
+                            #print("Bildwechsel")
+                            #print(self.backgrounds)
+                            self.background = random.choice(self.backgrounds)
                             break
+                        
                         if "x" in result:
                             # change screen resolution, menu text is something like "800x600"
                             left = result.split("x")[0]
