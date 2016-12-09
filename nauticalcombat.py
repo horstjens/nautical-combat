@@ -364,7 +364,7 @@ class PygView(object):
 
     def run(self):
         """The mainloop"""
-        
+        self.mapdx, self.mapdy = 0, 0
         running = True
         while running:
             for event in pygame.event.get():
@@ -407,11 +407,20 @@ class PygView(object):
                 self.tux1.straferight()
             if pressedkeys[pygame.K_q]: # strafe left
                 self.tux1.strafeleft()
+            # ---- map scrolling -----
+            if pressedkeys[pygame.K_LEFT]:
+                self.mapdx -= 1
+            if pressedkeys[pygame.K_RIGHT]:
+                self.mapdx += 1
+            if pressedkeys[pygame.K_UP]:
+                self.mapdy -= 1
+            if pressedkeys[pygame.K_DOWN]:
+                self.mapdy += 1
             # ------ clock ----------
             milliseconds = self.clock.tick(self.fps) 
             seconds = milliseconds / 1000
             self.playtime += seconds
-            self.screen.blit(self.background, (0, 0))  # clear screen
+            self.screen.blit(self.background, (0 + self.mapdx, 0 + self.mapdy))  # clear screen
             # write text below sprites
             write(self.screen, "FPS: {:6.3}  PLAYTIME: {:6.3} SECONDS".format(
                            self.clock.get_fps(), self.playtime))
@@ -465,6 +474,8 @@ class PygView(object):
             write(self.screen, "Press c to add another bullet", x=self.width//2, y=275, center=True)
             write(self.screen, "Press w,a,s,d and q,e to steer tux", x=self.width//2, y=300, center=True)
             write(self.screen, "Press space to fire from tux", x=self.width//2, y=325, center=True)
+            write(self.screen, "use mouse wheel to zoom map", x=self.width//2, y = 350, center=True)
+            write(self.screen, "use cursor keys to scroll map", x=self.width//2, y = 375, center=True)
             # --------- next frame ---------------
             pygame.display.flip()
         pygame.quit()
