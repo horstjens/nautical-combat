@@ -380,10 +380,9 @@ class PygView(object):
             PygView.images.append(pygame.image.load(os.path.join("data", "map.png")).convert())     # index 1
             PygView.images.append(pygame.image.load(os.path.join("data", "map.png")).convert())     # index 2
             PygView.images.append(pygame.image.load(os.path.join("data", "map.png")).convert())     # index 3
-            
-            
             PygView.images.append(pygame.image.load(os.path.join("data", "Uboot.png")).convert_alpha()) # index 4
             PygView.images.append(pygame.image.load(os.path.join("data", "Ubootrot.png")).convert_alpha()) # index 5
+
             
             # load other resources here
         except:
@@ -482,6 +481,7 @@ class PygView(object):
                 self.mapdy -= 1
                 if self.mapdy < -15:
                     self.mapdy = -15
+
             # ------ clock ----------
             milliseconds = self.clock.tick(self.fps) 
             seconds = milliseconds / 1000
