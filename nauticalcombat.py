@@ -332,7 +332,7 @@ class PygView(object):
             PygView.images.append(pygame.image.load(os.path.join("data", "map.png")).convert())     # index 3
             
             
-            PygView.images.append(pygame.image.load(os.path.join("data", "Uboot.png")).convert_alpha()) # index 4
+            PygView.images.append(pygame.image.load(os.path.join("data", "babytux.png")).convert_alpha()) # index 4
             
             # load other resources here
         except:
@@ -409,21 +409,13 @@ class PygView(object):
                 self.tux1.strafeleft()
             # ---- map scrolling -----
             if pressedkeys[pygame.K_LEFT]:
-                self.mapdx += 1
-                if self.mapdx > 15:
-					self.mapdx = 15
-            if pressedkeys[pygame.K_RIGHT]:
                 self.mapdx -= 1
-                if self.mapdx < -15:
-					self.mapdx = -15
+            if pressedkeys[pygame.K_RIGHT]:
+                self.mapdx += 1
             if pressedkeys[pygame.K_UP]:
-                self.mapdy += 1
-                if self.mapdy > 15:
-					self.mapdy = 15
-            if pressedkeys[pygame.K_DOWN]:
                 self.mapdy -= 1
-                if self.mapdy < -15:
-					self.mapdy = -15
+            if pressedkeys[pygame.K_DOWN]:
+                self.mapdy += 1
             # ------ clock ----------
             milliseconds = self.clock.tick(self.fps) 
             seconds = milliseconds / 1000
