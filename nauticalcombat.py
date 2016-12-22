@@ -120,18 +120,18 @@ class FlyingObject(pygame.sprite.Sprite):
             self.dy *= self.friction
         self.x += self.dx * seconds
         self.y += self.dy * seconds
-        if self.x - self.width //2 < 0:
-            self.x = self.width // 2
-            self.dx *= -1 
-        if self.y - self.height // 2 < 0:
-            self.y = self.height // 2
-            self.dy *= -1
-        if self.x + self.width //2 > PygView.width:
-            self.x = PygView.width - self.width //2
-            self.dx *= -1
-        if self.y + self.height //2 > PygView.height:
-            self.y = PygView.height - self.height //2
-            self.dy *= -1
+        #if self.x - self.width //2 < 0:
+        #    self.x = self.width // 2
+        #    self.dx *= -1 
+        #if self.y - self.height // 2 < 0:
+        #    self.y = self.height // 2
+        #    self.dy *= -1
+        #if self.x + self.width //2 > PygView.width:
+        #    self.x = PygView.width - self.width //2
+        #    self.dx *= -1
+        #if self.y + self.height //2 > PygView.height:
+        #    self.y = PygView.height - self.height //2
+        #    self.dy *= -1
         self.rect.centerx = round(self.x, 0)
         self.rect.centery = round(self.y, 0)
         # alive?
@@ -191,7 +191,7 @@ class Ball(FlyingObject):
         self.image.set_colorkey((0,0,0))
         self.image = self.image.convert_alpha() # faster blitting with transparent color
         self.rect= self.image.get_rect()
-        
+
 class Explosion(FlyingObject):
     """a big pygame Sprite with high mass"""
         
@@ -227,29 +227,72 @@ class EnemySub(FlyingObject):
         self.image0 = PygView.images[self.imagenr]
         self.width = self.image.get_rect().width
         self.height = self.image.get_rect().height
+
+class Torpedoexplosion(FlyingObject):
+    """exploding torpedo"""
+    images = []
+
+    def init2(self):
+        #self.mass = 5
+        self.lifetime = 1.5 # seconds
+        #self.color = (255,5,210)
+        self.speed = 0.0
+        self.angle = FlyingObject.numbers[self.bossnumber].angle
+        self.rotate()
+        self.picturetime = 0.2 # how long one picture is visible
+        self.age = 0
+
+    def update(self, seconds):
+        super(Torpedoexplosion, self).update(seconds)
+        self.lifetime -= seconds # aging
+        self.age += seconds
+        try:
+            self.image0 = Torpedoexplosion.images[int(self.age / self.picturetime)]
+            self.image = Torpedoexplosion.images[int(self.age / self.picturetime)]
+        except:
+            self.kill()
+            print("Torpedoexplosion lifetime is too low or too few images for Torpedoexplosion")
+        if self.lifetime < 0:
+            self.kill()
         
-class Bullet(FlyingObject):
+    def create_image(self):
+        self.image = Torpedoexplosion.images[0]
+        self.image0 = Torpedoexplosion.images[0]
+        self.rect = self.image.get_rect()
+        #self.image = pygame.Surface((self.width,self.height))    
+        #pygame.draw.circle(self.image, self.color, (self.radius, self.radius), self.radius) # draw blue filled circle on ball surface
+        #pygame.draw.rect(self.image, self.color, (0,0,5,10))
+        #self.image.set_colorkey((0,0,0))
+        #self.image = self.image.convert_alpha() # faster blitting with transparent color
+        #self.rect= self.image.get_rect()
+        #self.image0 = self.image.copy()        
+
+class Torpedo(FlyingObject):
     """a small Sprite with mass"""
 
     def init2(self):
         self.mass = 5
         self.lifetime = 8.5 # seconds
         self.color = (255,5,210)
-        self.speed = 0.0
+        self.speed = 5.0
+        self.angle = FlyingObject.numbers[self.bossnumber].angle
+        self.rotate()
 
     def update(self, seconds):
-        super(Bullet,self).update(seconds)
+        super(Torpedo,self).update(seconds)
         self.lifetime -= seconds # aging
         if self.lifetime < 0:
+            Torpedoexplosion(radius=5, x=self.x, y=self.y, bossnumber=self.number) 
             self.kill()
         
     def create_image(self):
         self.image = pygame.Surface((self.width,self.height))    
         #pygame.draw.circle(self.image, self.color, (self.radius, self.radius), self.radius) # draw blue filled circle on ball surface
-        pygame.draw.rect(self.image, self.color, (0,0,10,5))
+        pygame.draw.rect(self.image, self.color, (0,0,5,10))
         self.image.set_colorkey((0,0,0))
         self.image = self.image.convert_alpha() # faster blitting with transparent color
         self.rect= self.image.get_rect()
+        self.image0 = self.image.copy()
         
 class Player(FlyingObject):
     """player-controlled character with relative movement"""
@@ -382,7 +425,12 @@ class PygView(object):
             PygView.images.append(pygame.image.load(os.path.join("data", "map.png")).convert())     # index 3
             PygView.images.append(pygame.image.load(os.path.join("data", "Uboot.png")).convert_alpha()) # index 4
             PygView.images.append(pygame.image.load(os.path.join("data", "Ubootrot.png")).convert_alpha()) # index 5
-
+            Torpedoexplosion.images.append(pygame.image.load(os.path.join("data","torpedoexplosion0.png")).convert_alpha())
+            Torpedoexplosion.images.append(pygame.image.load(os.path.join("data","torpedoexplosion1.png")).convert_alpha())
+            Torpedoexplosion.images.append(pygame.image.load(os.path.join("data","torpedoexplosion2.png")).convert_alpha())
+            Torpedoexplosion.images.append(pygame.image.load(os.path.join("data","torpedoexplosion3.png")).convert_alpha())
+            Torpedoexplosion.images.append(pygame.image.load(os.path.join("data","torpedoexplosion4.png")).convert_alpha())
+            Torpedoexplosion.images.append(pygame.image.load(os.path.join("data","torpedoexplosion5.png")).convert_alpha())
             
             # load other resources here
         except:
@@ -401,14 +449,15 @@ class PygView(object):
         self.allgroup =  pygame.sprite.LayeredUpdates() # for drawing
         self.ballgroup = pygame.sprite.Group()          # for collision detection etc.
         self.hitpointbargroup = pygame.sprite.Group()
-        self.bulletgroup = pygame.sprite.Group()
+        self.torpedogroup = pygame.sprite.Group()
         self.playergroup = pygame.sprite.Group()
         self.enemysubgroup = pygame.sprite.Group()
         # ----- assign Sprite class to sprite Groups ------- 
         Player.groups = self.allgroup, self.playergroup
         Hitpointbar.groups = self.hitpointbargroup
         Ball.groups = self.allgroup, self.ballgroup # each Ball object belong to those groups
-        Bullet.groups = self.allgroup, self.bulletgroup
+        Torpedo.groups = self.allgroup, self.torpedogroup
+        Torpedoexplosion.groups = self.allgroup,
         EnemySub.groups = self.allgroup, self.enemysubgroup, self. ballgroup
         #self.ball1 = Ball(x=100, y=100) # creating a Ball Sprite
         #self.ball2 = Ball(x=200, y=100) # create another Ball Sprite
@@ -432,12 +481,12 @@ class PygView(object):
                     if event.key == pygame.K_b:
                         Ball(x=random.randint(0,PygView.width-100)) # add big balls!
                     if event.key == pygame.K_c:
-                        Bullet(radius=5, x=0,y=0, dx=200, dy=200, color=(55,50,50))
+                        Torpedo(radius=5, x=0,y=0, dx=200, dy=200, color=(55,50,50))
                     if event.key == pygame.K_SPACE: # fire forward from player1 with 300 speed
                         if self.player1.checkfire():
-                            Bullet(radius=5, x=self.player1.x, y=self.player1.y,
-                                   dx=-math.sin(self.player1.angle*GRAD)*50,
-                                   dy=-math.cos(self.player1.angle*GRAD)*50,
+                            Torpedo(radius=5, x=self.player1.x, y=self.player1.y,
+                                   dx=-math.sin((self.player1.angle)*GRAD)*50,
+                                   dy=-math.cos((self.player1.angle)*GRAD)*50,
                                    bossnumber=self.player1.number,
                                    color = (255,0,210))   
                             self.player1.cooldown = self.player1.cooldowntime       
@@ -493,24 +542,25 @@ class PygView(object):
             # -------- collision detection ---------
             # you can use: pygame.sprite.collide_rect, pygame.sprite.collide_circle, pygame.sprite.collide_mask
             # the False means the colliding sprite is not killed
-            # ---------- collision detection between ball and bullet sprites ---------
+            # ---------- collision detection between ball and torpedo sprites ---------
             for ball in self.ballgroup:
-               crashgroup = pygame.sprite.spritecollide(ball, self.bulletgroup, False, pygame.sprite.collide_circle)
-               for bullet in crashgroup:
-                   elastic_collision(ball, bullet) # change dx and dy of both sprites
-                   ball.hitpoints -= bullet.damage
+               crashgroup = pygame.sprite.spritecollide(ball, self.torpedogroup, True, pygame.sprite.collide_circle)
+               for torpedo in crashgroup:
+                   #elastic_collision(ball, torpedo) # change dx and dy of both sprites
+                   ball.hitpoints -= torpedo.damage
             # --------- collision detection between ball and other balls
             for ball in self.ballgroup:
                 crashgroup = pygame.sprite.spritecollide(ball, self.ballgroup, False, pygame.sprite.collide_circle)
                 for otherball in crashgroup:
                     if ball.number > otherball.number:     # make sure no self-collision or calculating collision twice
                         elastic_collision(ball, otherball) # change dx and dy of both sprites
-            # ---------- collision detection between bullet and other bullets
-            for bullet in self.bulletgroup:
-                crashgroup = pygame.sprite.spritecollide(bullet, self.bulletgroup, False, pygame.sprite.collide_circle)
-                for otherbullet in crashgroup:
-                    if bullet.number > otherbullet.number:
-                         elastic_collision(bullet, otherball) # change dx and dy of both sprites
+            # ---------- collision detection between torpedo and other torpedos
+            for torpedo in self.torpedogroup:
+                crashgroup = pygame.sprite.spritecollide(torpedo, self.torpedogroup, False, pygame.sprite.collide_circle)
+                for othertorpedo in crashgroup:
+                    if torpedo.number > othertorpedo.number:
+                #         elastic_collision(torpedo, othertorpedo) # change dx and dy of both sprites
+                          torpedo.kill()
             # --------- collision detection between Player and balls
             for player in self.playergroup:
                 crashgroup = pygame.sprite.spritecollide(player, self.ballgroup, False, pygame.sprite.collide_circle)
@@ -518,15 +568,15 @@ class PygView(object):
                     elastic_collision(player, otherball)
                     player.hitpoints -= otherball.damage
                     otherball.hitpoints -= player.damage
-            # ------------ collision detection between Player and bullets
+            # ------------ collision detection between Player and torpedos
             for player in self.playergroup:
-                crashgroup = pygame.sprite.spritecollide(player, self.bulletgroup, False, pygame.sprite.collide_circle)
-                for otherbullet in crashgroup:
-                    # player is not damaged by his own bullets
-                    if otherbullet.bossnumber != player.number:
-                        elastic_collision(player, otherbullet)
-                        player.hitpoints -= otherbullet.damage
-                        otherbullet.kill()
+                crashgroup = pygame.sprite.spritecollide(player, self.torpedogroup, False, pygame.sprite.collide_circle)
+                for othertorpedo in crashgroup:
+                    # player is not damaged by his own torpedos
+                    if othertorpedo.bossnumber != player.number:
+                        elastic_collision(player, othertorpedo)
+                        player.hitpoints -= othertorpedo.damage
+                        othertorpedo.kill()
                         
             # 
             # ----------- clear, draw , update, flip -----------------  
@@ -537,7 +587,7 @@ class PygView(object):
             self.hitpointbargroup.draw(self.screen)     
             # -------  write text over everything  -----------------
             write(self.screen, "Press b to add another ball", x=self.width//2, y=250, center=True)
-            write(self.screen, "Press c to add another bullet", x=self.width//2, y=275, center=True)
+            write(self.screen, "Press c to add another torpedo", x=self.width//2, y=275, center=True)
             write(self.screen, "Press w,a,s,d and q,e to steer player", x=self.width//2, y=300, center=True)
             write(self.screen, "Press space to fire from player", x=self.width//2, y=325, center=True)
             write(self.screen, "use mouse wheel to zoom map", x=self.width//2, y = 350, center=True)
