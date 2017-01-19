@@ -21,6 +21,8 @@ import sys
 
 GRAD = math.pi / 180 # 2 * pi / 360   # math module needs Radiant instead of Grad
 
+	
+	
 class FlyingObject(pygame.sprite.Sprite):
     """base class for sprites. this class inherits from pygames sprite class"""
     number = 0 # current number for new Sprite
@@ -141,6 +143,14 @@ class FlyingObject(pygame.sprite.Sprite):
             self.kill()
 
 
+class SwimmingObject(FlyingObject):
+	
+	def __init2(self):	
+		self.hitpointsfull = 420
+		self.damage = 420
+		self.speed = 420
+		self.turnspeed = 420
+		
 class Hitpointbar(pygame.sprite.Sprite):
         """shows a bar with the hitpoints of a Boss sprite
         Boss needs a unique number in FlyingObject.numbers,
