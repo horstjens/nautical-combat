@@ -1,0 +1,16 @@
+,Hitpoints,Speed,Firepower,Primary,Secondary,A-air,Turn Spd
+submarine,150,50/90,50,Torpedo,Deck-gun,none,5
+battleship,300,70,30,Turrets,Mines,A-air Gun,6
+carrier,300,70,10,none,none,A-air Gun,6
+Destroyer,200,90,20,Turrets,none,A-air Gun,7
+Cruiser,150,90,15,Anti-sub msl,Deck-gun,A-air Gun,7
+Frigate,450,60,35,Turrets,Mines,A-air Guns,5
+Lander,150,90,none,none,Deck-gun,none,6
+,,,,,,,
+Bomber,90,120,50,Bombs,none,none,10
+Fighter,75,130,10,Machine Gun,none,none,11
+Interceptor,100,120,40,Bombs,none,A-air msl,10
+Battle Copter,50,90,10,Machine Gun,Rockets,none,9
+Paratrooper,90,100,none,none,none,none,9
+,,,,,,,
+Weed Sub,420,420,420,Kush,Weed,Marihuana,420
