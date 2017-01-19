@@ -49,6 +49,8 @@ class FlyingObject(pygame.sprite.Sprite):
         self.turnspeed = 5   # only important for rotating
         self.speed = speed      # only important for ddx and ddy
         self.angle = 0
+        self.worldx = 0
+        self.worldy = 0
         self.x = x           # position
         self.y = y
         self.dx = dx         # movement
@@ -172,25 +174,25 @@ class Hitpointbar(pygame.sprite.Sprite):
                 self.kill() # kill the hitbar
 
 
-class Ball(FlyingObject):
-    """a big pygame Sprite with high mass"""
-        
-    def init2(self):
-        self.mass = 150
-        checked = False
-        self.dx = random.random() * 100 - 50
-        self.dy = random.random() * 100 - 50
-        Hitpointbar(self.number)
-        
-    def create_image(self):
-        self.image = pygame.Surface((self.width,self.height))    
-        pygame.draw.circle(self.image, self.color, (self.radius, self.radius), self.radius) # draw blue filled circle on ball surface
-        pygame.draw.circle (self.image, (0,0,200) , (self.radius //2 , self.radius //2), self.radius// 3)         # left blue eye
-        pygame.draw.circle (self.image, (255,255,0) , (3 * self.radius //2  , self.radius //2), self.radius// 3)  # right yellow yey
-        pygame.draw.arc(self.image, (32,32,32), (self.radius //2, self.radius, self.radius, self.radius//2), math.pi, 2*math.pi, 1) # grey mouth
-        self.image.set_colorkey((0,0,0))
-        self.image = self.image.convert_alpha() # faster blitting with transparent color
-        self.rect= self.image.get_rect()
+#class Ball(FlyingObject):
+#    """a big pygame Sprite with high mass"""
+#        
+#    def init2(self):
+#        self.mass = 150
+#        checked = False
+#        self.dx = random.random() * 100 - 50
+#        self.dy = random.random() * 100 - 50
+#        Hitpointbar(self.number)
+#        
+#    def create_image(self):
+#        self.image = pygame.Surface((self.width,self.height))    
+#        pygame.draw.circle(self.image, self.color, (self.radius, self.radius), self.radius) # draw blue filled circle on ball surface
+#        pygame.draw.circle (self.image, (0,0,200) , (self.radius //2 , self.radius //2), self.radius// 3)         # left blue eye
+#        pygame.draw.circle (self.image, (255,255,0) , (3 * self.radius //2  , self.radius //2), self.radius// 3)  # right yellow yey
+#        pygame.draw.arc(self.image, (32,32,32), (self.radius //2, self.radius, self.radius, self.radius//2), math.pi, 2*math.pi, 1) # grey mouth
+#        self.image.set_colorkey((0,0,0))
+#        self.image = self.image.convert_alpha() # faster blitting with transparent color
+#        self.rect= self.image.get_rect()
 
 class Explosion(FlyingObject):
     """a big pygame Sprite with high mass"""
@@ -447,7 +449,8 @@ class PygView(object):
         
         # -------  create (pygame) Sprites Groups and Sprites -------------
         self.allgroup =  pygame.sprite.LayeredUpdates() # for drawing
-        self.ballgroup = pygame.sprite.Group()          # for collision detection etc.
+        #self.ballgroup = pygame.sprite.Group()          # for collision detection etc.
+        #self.swimgroup = pygame.sprite.Group()
         self.hitpointbargroup = pygame.sprite.Group()
         self.torpedogroup = pygame.sprite.Group()
         self.playergroup = pygame.sprite.Group()
@@ -455,10 +458,11 @@ class PygView(object):
         # ----- assign Sprite class to sprite Groups ------- 
         Player.groups = self.allgroup, self.playergroup
         Hitpointbar.groups = self.hitpointbargroup
-        Ball.groups = self.allgroup, self.ballgroup # each Ball object belong to those groups
+        
+        #Ball.groups = self.allgroup, self.ballgroup # each Ball object belong to those groups
         Torpedo.groups = self.allgroup, self.torpedogroup
         Torpedoexplosion.groups = self.allgroup,
-        EnemySub.groups = self.allgroup, self.enemysubgroup, self. ballgroup
+        EnemySub.groups = self.allgroup, self.enemysubgroup
         #self.ball1 = Ball(x=100, y=100) # creating a Ball Sprite
         #self.ball2 = Ball(x=200, y=100) # create another Ball Sprite
         self.enemysub1 = EnemySub(x=150, y=150, imagenr = 5)
@@ -478,10 +482,10 @@ class PygView(object):
                 elif event.type == pygame.KEYDOWN: 
                     if event.key == pygame.K_ESCAPE:
                         running = False
-                    if event.key == pygame.K_b:
-                        Ball(x=random.randint(0,PygView.width-100)) # add big balls!
-                    if event.key == pygame.K_c:
-                        Torpedo(radius=5, x=0,y=0, dx=200, dy=200, color=(55,50,50))
+                    #if event.key == pygame.K_b:
+                    #    Ball(x=random.randint(0,PygView.width-100)) # add big balls!
+                    #if event.key == pygame.K_c:
+                    #    Torpedo(radius=5, x=0,y=0, dx=200, dy=200, color=(55,50,50))
                     if event.key == pygame.K_SPACE: # fire forward from player1 with 300 speed
                         if self.player1.checkfire():
                             Torpedo(radius=5, x=self.player1.x, y=self.player1.y,
@@ -542,18 +546,26 @@ class PygView(object):
             # -------- collision detection ---------
             # you can use: pygame.sprite.collide_rect, pygame.sprite.collide_circle, pygame.sprite.collide_mask
             # the False means the colliding sprite is not killed
+            # ----------- collision detection between enemysub and torpedo --------
+            for ship in self.enemysubgroup:
+                crashgroup = pygame.sprite.spritecollide(ship, self.torpedogroup, True, pygame.sprite.collide_mask)
+                for torpedo in crashgroup:
+                    ship.hitpoints -= torpedo.damage
+            
+            
             # ---------- collision detection between ball and torpedo sprites ---------
-            for ball in self.ballgroup:
-               crashgroup = pygame.sprite.spritecollide(ball, self.torpedogroup, True, pygame.sprite.collide_circle)
-               for torpedo in crashgroup:
-                   #elastic_collision(ball, torpedo) # change dx and dy of both sprites
-                   ball.hitpoints -= torpedo.damage
+            #for ball in self.ballgroup:
+            #   crashgroup = pygame.sprite.spritecollide(ball, self.torpedogroup, True, pygame.sprite.collide_circle)
+            #   for torpedo in crashgroup:
+            #       #elastic_collision(ball, torpedo) # change dx and dy of both sprites
+            #       ball.hitpoints -= torpedo.damage
             # --------- collision detection between ball and other balls
-            for ball in self.ballgroup:
-                crashgroup = pygame.sprite.spritecollide(ball, self.ballgroup, False, pygame.sprite.collide_circle)
-                for otherball in crashgroup:
-                    if ball.number > otherball.number:     # make sure no self-collision or calculating collision twice
-                        elastic_collision(ball, otherball) # change dx and dy of both sprites
+            #for ball in self.ballgroup:
+            #    crashgroup = pygame.sprite.spritecollide(ball, self.ballgroup, False, pygame.sprite.collide_circle)
+            #    for otherball in crashgroup:
+            #        if ball.number > otherball.number:     # make sure no self-collision or calculating collision twice
+            #            elastic_collision(ball, otherball) # change dx and dy of both sprites
+            
             # ---------- collision detection between torpedo and other torpedos
             for torpedo in self.torpedogroup:
                 crashgroup = pygame.sprite.spritecollide(torpedo, self.torpedogroup, False, pygame.sprite.collide_circle)
@@ -562,12 +574,13 @@ class PygView(object):
                 #         elastic_collision(torpedo, othertorpedo) # change dx and dy of both sprites
                           torpedo.kill()
             # --------- collision detection between Player and balls
-            for player in self.playergroup:
-                crashgroup = pygame.sprite.spritecollide(player, self.ballgroup, False, pygame.sprite.collide_circle)
-                for otherball in crashgroup:
-                    elastic_collision(player, otherball)
-                    player.hitpoints -= otherball.damage
-                    otherball.hitpoints -= player.damage
+            #for player in self.playergroup:
+            #    crashgroup = pygame.sprite.spritecollide(player, self.ballgroup, False, pygame.sprite.collide_circle)
+            #    for otherball in crashgroup:
+            #        elastic_collision(player, otherball)
+            #        player.hitpoints -= otherball.damage
+            #        otherball.hitpoints -= player.damage
+            
             # ------------ collision detection between Player and torpedos
             for player in self.playergroup:
                 crashgroup = pygame.sprite.spritecollide(player, self.torpedogroup, False, pygame.sprite.collide_circle)
