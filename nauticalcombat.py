@@ -348,7 +348,7 @@ class Vec2d(object):
         return [self.x, self.y]
  
     def __setstate__(self, dict):
-        self.x, self.y = dict	
+        self.x, self.y = dict   
 
 #a = Vec2d(5,1)
 #b = Vec2d(0,9)
@@ -356,7 +356,7 @@ class Vec2d(object):
 #print("a*5", a*5)
 #print("a90", a.rotated(90))
 
-	
+    
 class FlyingObject(pygame.sprite.Sprite):
     """base class for sprites. this class inherits from pygames sprite class"""
     number = 0 # current number for new Sprite
@@ -468,14 +468,14 @@ class FlyingObject(pygame.sprite.Sprite):
 
 
 class SwimmingObject(FlyingObject):
-	
-	def __init2(self):	
-		self.hitpoints = 150
-		self.hitpointsfull = 150
-		self.damage = 10
-		self.speed = 50
-		self.turnspeed = 5
-		
+    
+    def __init2(self):  
+        self.hitpoints = 150
+        self.hitpointsfull = 150
+        self.damage = 10
+        self.speed = 50
+        self.turnspeed = 5
+        
 class Hitpointbar(pygame.sprite.Sprite):
         """shows a bar with the hitpoints of a Boss sprite
         Boss needs a unique number in FlyingObject.numbers,
@@ -742,7 +742,30 @@ class PygView(object):
         PygView.images[1] = pygame.transform.scale(PygView.images[1], (self.width, self.height))
         PygView.images[2] = pygame.transform.scale(PygView.images[2], (self.width*2, self.height*2))
         PygView.images[3] = pygame.transform.scale(PygView.images[3], (self.width*4, self.height*4))
+        
+        # ----- draw grids ----
+        
+        for x in range(0,6401,100):
+            pygame.draw.line(PygView.images[1], (0,255,0), (x, 0), (x, self.height) )
+        for y in range(0,4801,100):
+            pygame.draw.line(PygView.images[1], (0,255,0), (0, y), (self.width, y))
+        for x in range(0,6401,200):
+            pygame.draw.line(PygView.images[2], (0,255,0), (x, 0), (x, self.height*2) )
+        for y in range(0,4801,200):
+            pygame.draw.line(PygView.images[2], (0,255,0), (0, y), (self.width*2, y))
+        for x in range(0,6401,400):
+            pygame.draw.line(PygView.images[3], (0,255,0), (x, 0), (x, self.height*4) )
+        for y in range(0,4801,400):
+            pygame.draw.line(PygView.images[3], (0,255,0), (0, y), (self.width*4, y))
+            
+        
+        
+        
+        
+        
         self.background.blit(PygView.images[1], (0,0))
+        
+        
         
         # -------  create (pygame) Sprites Groups and Sprites -------------
         self.allgroup =  pygame.sprite.LayeredUpdates() # for drawing
