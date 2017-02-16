@@ -739,9 +739,9 @@ class PygView(object):
             sys.exit()
         # ------- create background
         
-        PygView.images[1] = pygame.transform.scale(PygView.images[1], (self.width, self.height))
-        PygView.images[2] = pygame.transform.scale(PygView.images[2], (self.width*2, self.height*2))
-        PygView.images[3] = pygame.transform.scale(PygView.images[3], (self.width*4, self.height*4))
+        PygView.images[1] = pygame.transform.scale(PygView.images[0], (self.width, self.height))
+        PygView.images[2] = pygame.transform.scale(PygView.images[0], (self.width*2, self.height*2))
+        PygView.images[3] = pygame.transform.scale(PygView.images[0], (self.width*4, self.height*4))
         
         # ----- draw grids ----
         
@@ -758,10 +758,6 @@ class PygView(object):
         for y in range(0,4801,400):
             pygame.draw.line(PygView.images[3], (0,255,0), (0, y), (self.width*4, y))
             
-        
-        
-        
-        
         
         self.background.blit(PygView.images[1], (0,0))
         
@@ -831,20 +827,20 @@ class PygView(object):
             # ---- map scrolling -----
             if pressedkeys[pygame.K_LEFT]:
                 self.mapdx += 1
-                if self.mapdx > 15:
-                    self.mapdx = 15
+                #if self.mapdx > 15:
+                #    self.mapdx = 15
             if pressedkeys[pygame.K_RIGHT]:
                 self.mapdx -= 1
-                if self.mapdx < -15:
-                    self.mapdx = -15
+                #if self.mapdx < -15:
+                #    self.mapdx = -15
             if pressedkeys[pygame.K_UP]:
                 self.mapdy += 1
-                if self.mapdy > 15:
-                    self.mapdy = 15
+                #if self.mapdy > 15:
+                #    self.mapdy = 15
             if pressedkeys[pygame.K_DOWN]:
                 self.mapdy -= 1
-                if self.mapdy < -15:
-                    self.mapdy = -15
+                #if self.mapdy < -15:
+                #    self.mapdy = -15
 
             # ------ clock ----------
             milliseconds = self.clock.tick(self.fps) 
