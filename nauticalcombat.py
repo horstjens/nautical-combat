@@ -690,12 +690,15 @@ class PygView(object):
         PygView.width = width    # make global readable
         PygView.height = height
         self.screen = pygame.display.set_mode((self.width, self.height), pygame.DOUBLEBUF)
-        self.background = pygame.Surface(self.screen.get_size()).convert()  
-        self.background.fill((255,255,255)) # fill background white
+        self.loadresources()
+        self.background = pygame.Surface(PygView.images[0].get_size())
+        self.background.blit(PygView.images[0], (0,0))
+        #self.background = pygame.Surface(self.screen.get_size()).convert()  
+        #self.background.fill((255,255,255)) # fill background white
         self.clock = pygame.time.Clock()
         self.fps = fps
         self.playtime = 0.0
-        self.loadresources()
+        #self.loadresources()
         self.mapzoom = 5
         
         
@@ -706,7 +709,7 @@ class PygView(object):
          
         
     def zoom_out(self):
-        if self.mapzoom > 1:
+        if self.mapzoom > 0:
             self.mapzoom -= 1
             self.background.blit(PygView.images[self.mapzoom], (0,0))
             
@@ -759,7 +762,7 @@ class PygView(object):
             pygame.draw.line(PygView.images[3], (0,255,0), (0, y), (self.width*4, y))
             
         
-        self.background.blit(PygView.images[1], (0,0))
+        
         
         
         
@@ -887,6 +890,8 @@ class PygView(object):
             #write(self.screen, "Press b to add another ball", x=self.width//2, y=250, center=True)
             # --------- next frame ---------------
             pygame.display.flip()
+            # update status text 
+            pygame.display.set_caption("Press ESC to quit"+"mapzoom: {}".format(self.mapzoom))
         pygame.quit()
 
 if __name__ == '__main__':
