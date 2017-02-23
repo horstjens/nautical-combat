@@ -467,6 +467,60 @@ class FlyingObject(pygame.sprite.Sprite):
             self.kill()
 
 
+
+class Plane(FlyingObject):
+    images = []
+    
+    """A plane that patrols the skies"""
+    def init2(self):
+        self.hitpointsfull = 75
+        self.hitpoints = 75
+        self.speed = 130
+        self.turnspeed = 11
+        self.damage = 10
+        self.dx = 10
+        self.dy = 10
+        self.x = 50
+        self.y = 50
+        self.path = [(50,50),(150,150),(300,50)]
+        self.point = 1
+        
+    def create_image(self):
+        self.image = self.images[0]
+        self.image0 = self.images[0]
+        self.width = self.image.get_rect().width
+        self.height = self.image.get_rect().height
+        
+    def update(self, seconds):
+        self.dx += self.ddx * self.speed
+        self.dy += self.ddy * self.speed
+        if abs(self.dx) > 0 : 
+            self.dx *= self.friction  # make the Sprite slower over time
+        if abs(self.dy) > 0 :
+            self.dy *= self.friction
+        self.x += self.dx * seconds
+        self.y += self.dy * seconds
+        self.rect.centerx = round(self.x, 0)
+        self.rect.centery = round(self.y, 0)
+        if self.point == 1:
+            if self.x>150:
+                self.point = 2
+                (self.x,self.y) = self.path[1]
+                self.dy = -10
+        # alive?
+        if self.hitpoints < 1:
+            self.kill()
+
+class Fighter(Plane):
+    """Fast but fragile Plane armed with machine guns"""
+    def init2(self):
+        self.hitpointsfull = 75
+        self.hitpoints = 75
+        self.speed = 130
+        self.turnspeed = 11
+        self.damage = 10
+        self.dx = 5    
+
 class SwimmingObject(FlyingObject):
     
     def __init2(self):  
@@ -733,6 +787,11 @@ class PygView(object):
             Torpedoexplosion.images.append(pygame.image.load(os.path.join("data","torpedoexplosion3.png")).convert_alpha())
             Torpedoexplosion.images.append(pygame.image.load(os.path.join("data","torpedoexplosion4.png")).convert_alpha())
             Torpedoexplosion.images.append(pygame.image.load(os.path.join("data","torpedoexplosion5.png")).convert_alpha())
+            Plane.images.append(pygame.image.load(os.path.join("data", "fighter1.png")))            
+            Plane.images.append(pygame.image.load(os.path.join("data", "fighter2.png")))
+            rosa = Plane.images[1].get_at((0,0))
+            Plane.images[0].set_colorkey(rosa)            
+            Plane.images[1].set_colorkey(rosa)      
             
             # load other resources here
         except:
@@ -772,16 +831,18 @@ class PygView(object):
         self.torpedogroup = pygame.sprite.Group()
         self.playergroup = pygame.sprite.Group()
         self.enemysubgroup = pygame.sprite.Group()
+        self.planegroup = pygame.sprite.Group()
         # ----- assign Sprite class to sprite Groups ------- 
         Player.groups = self.allgroup, self.playergroup
         Hitpointbar.groups = self.hitpointbargroup
-        
+        Plane.groups = self.allgroup, self.planegroup
         Torpedo.groups = self.allgroup, self.torpedogroup
         Torpedoexplosion.groups = self.allgroup,
         EnemySub.groups = self.allgroup, self.enemysubgroup
         self.enemysub1 = EnemySub(x=150, y=150, imagenr = 5)
         self.enemysub2 = EnemySub(x=350, y=250, imagenr = 5)
         self.player1 = Player(x=400, y=200, dx=0, dy=0, layer=5, imagenr = 4) # over balls layer
+        self.plane1 = Plane(x=50, y=50)
         
 
     def run(self):
