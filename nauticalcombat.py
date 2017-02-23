@@ -483,7 +483,8 @@ class Plane(FlyingObject):
         self.x = 50
         self.y = 50
         self.path = [(50,50),(150,150),(300,50)]
-        self.point = 1
+        self.newpoint = 1
+        self.oldpoint = 0
         
     def create_image(self):
         self.image = self.images[0]
@@ -502,11 +503,60 @@ class Plane(FlyingObject):
         self.y += self.dy * seconds
         self.rect.centerx = round(self.x, 0)
         self.rect.centery = round(self.y, 0)
-        if self.point == 1:
-            if self.x>150:
-                self.point = 2
-                (self.x,self.y) = self.path[1]
-                self.dy = -10
+        #if self.point == 1:
+        #    if self.x>150:
+        #        self.point = 2
+        #        (self.x,self.y) = self.path[1]
+        #        self.dy = -10
+        # x
+        if self.path[self.oldpoint][0] < self.path[self.newpoint][0]:
+            dirx = 1
+        elif self.path[self.oldpoint][0] > self.path[self.newpoint][0]:
+            dirx = -1
+        else:
+            dirx = 0
+        # y
+        if self.path[self.oldpoint][1] < self.path[self.newpoint][1]:
+            diry = 1
+        elif self.path[self.oldpoint][1] > self.path[self.newpoint][1]:
+            diry = -1
+        else:
+            diry = 0
+        pointwechsel = False            
+        if dirx != 0:
+            if dirx == 1:
+                if self.x > self.path[self.newpoint][0]:
+                    pointwechsel = True
+            else:
+                if self.x < self.path[self.newpoint][0]:
+                    pointwechsel = True
+        if diry != 0:
+            if diry == 1:
+                if self.y > self.path[self.newpoint][1]:
+                    pointwechsel = True
+            else:
+                if self.y < self.path[self.newpoint][1]:
+                    pointwechsel = True
+        if pointwechsel:
+            # letzer in der liste?
+            if self.newpoint == len(self.path)-1:
+                self.oldpoint = self.newpoint
+                self.newpoint = 0
+            else:
+                tmp = self.newpoint
+                self.newpoint += 1
+                self.oldpoint = tmp
+            (self.x, self.y) = self.path[self.oldpoint]
+            pointwechsel = False
+            #print("oldpoint, newpoint", self.oldpoint, self.newpoint)
+            self.dx = self.path[self.newpoint][0] - self.path[self.oldpoint][0]
+            self.dy = self.path[self.newpoint][1] - self.path[self.oldpoint][1]
+                    
+                    
+            
+        
+        
+        
         # alive?
         if self.hitpoints < 1:
             self.kill()
