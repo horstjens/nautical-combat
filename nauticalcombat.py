@@ -538,7 +538,7 @@ class Plane(FlyingObject):
                 if self.y < self.path[self.newpoint][1]:
                     pointwechsel = True
         if pointwechsel:
-            # letzer in der liste?
+            # letzter in der liste?
             if self.newpoint == len(self.path)-1:
                 self.oldpoint = self.newpoint
                 self.newpoint = 0
@@ -551,7 +551,10 @@ class Plane(FlyingObject):
             #print("oldpoint, newpoint", self.oldpoint, self.newpoint)
             self.dx = self.path[self.newpoint][0] - self.path[self.oldpoint][0]
             self.dy = self.path[self.newpoint][1] - self.path[self.oldpoint][1]
-                    
+            tmpvec = Vec2d(self.dx,self.dy).normalized()
+            self.dx = tmpvec.x * self.speed
+            self.dy = tmpvec.y * self.speed             
+                
                     
             
         
@@ -1006,5 +1009,9 @@ class PygView(object):
         pygame.quit()
 
 if __name__ == '__main__':
+    abba = Vec2d(5,5)
+    #print(abba)
+    #print(abba.normalized())
+    #print(abba.x, abba.y)
     # try PygView(800,600).run()
     PygView().run() 
