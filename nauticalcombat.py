@@ -1051,6 +1051,7 @@ class PygView(object):
             pygame.display.flip()
             # update status text 
             pygame.display.set_caption("Press ESC to quit"+"mapzoom: {}".format(self.mapzoom))
+            
         pygame.quit()
 
 if __name__ == '__main__':
