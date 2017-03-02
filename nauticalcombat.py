@@ -482,7 +482,7 @@ class Plane(FlyingObject):
         self.dy = 10
         self.x = 50
         self.y = 50
-        self.path = [(50,50),(150,150),(300,50)]
+        self.path = [(50,50),(150,150),(300,50),(400,100),(200,200),(50,400)]
         self.newpoint = 1
         self.oldpoint = 0
         
@@ -554,9 +554,7 @@ class Plane(FlyingObject):
             tmpvec = Vec2d(self.dx,self.dy).normalized()
             self.dx = tmpvec.x * self.speed
             self.dy = tmpvec.y * self.speed             
-                
-                    
-            
+
         
         
         
@@ -572,8 +570,38 @@ class Fighter(Plane):
         self.speed = 130
         self.turnspeed = 11
         self.damage = 10
-        self.dx = 5    
-
+        self.dx = 10
+        self.dy = 10
+        self.x = 50
+        self.y = 50
+        self.path = [(50,50),(300,300),(750,50)]
+        self.newpoint = 1
+        self.oldpoint = 0
+        Hitpointbar(self.number)
+        
+class Bomber(Plane):
+    """Plane that drops explosive bombs"""
+    def init2(self):
+        self.hitpointsfull = 90
+        self.hitpoints = 90
+        self.speed = 120
+        self.turnspeed = 11
+        self.damage = 50
+        self.dx = 0
+        self.dy = 40
+        self.x = 50
+        self.y = 50
+        self.path = [(100,100),(100,400),(400,400),(400,100)]
+        self.newpoint = 1
+        self.oldpoint = 0
+        Hitpointbar(self.number)
+        
+    def create_image(self):
+        self.image = self.images[2]
+        self.image0 = self.images[2]
+        self.width = self.image.get_rect().width
+        self.height = self.image.get_rect().height    
+        
 class SwimmingObject(FlyingObject):
     
     def __init2(self):  
@@ -639,6 +667,8 @@ class EnemySub(SwimmingObject):
     """a big pygame Sprite with high mass"""
         
     def init2(self):
+        self.hitpointsfull = 150
+        self.hitpoints = 150
         self.mass = 150
         checked = False
         self.dx = 0#random.random() * 10 - 50
@@ -685,9 +715,11 @@ class Torpedoexplosion(FlyingObject):
 
 class Torpedo(FlyingObject):
     """a small Sprite with mass"""
+    images = []
 
     def init2(self):
         self.mass = 5
+        self.damage = 100
         self.lifetime = 8.5 # seconds
         self.color = (255,5,210)
         self.speed = 5.0
@@ -702,12 +734,17 @@ class Torpedo(FlyingObject):
             self.kill()
         
     def create_image(self):
-        self.image = pygame.Surface((self.width,self.height))    
-        pygame.draw.rect(self.image, self.color, (0,0,5,10))
-        self.image.set_colorkey((0,0,0))
-        self.image = self.image.convert_alpha() # faster blitting with transparent color
-        self.rect= self.image.get_rect()
-        self.image0 = self.image.copy()
+        #self.image = pygame.Surface((self.width,self.height))    
+        #pygame.draw.rect(self.image, self.color, (0,0,5,10))
+        #self.image.set_colorkey((0,0,0))
+        #self.image = self.image.convert_alpha() # faster blitting with transparent color
+        #self.rect= self.image.get_rect()
+        #self.image0 = self.image.copy()
+        self.image = Torpedo.images[0]
+        self.image0 = Torpedo.images[0]
+        self.width = self.image.get_rect().width
+        self.height = self.image.get_rect().height
+        
         
 class Player(SwimmingObject):
     """player-controlled character with relative movement"""
@@ -718,7 +755,7 @@ class Player(SwimmingObject):
         self.speed = 3
         self.hitpoints = 200
         self.mass = 100
-        self.damage = 50
+        self.damage = 100
         self.radius = 16 # image is 32x36 pixel
         self.cooldown = 0.0
         self.cooldowntime = 1.0
@@ -840,12 +877,17 @@ class PygView(object):
             Torpedoexplosion.images.append(pygame.image.load(os.path.join("data","torpedoexplosion3.png")).convert_alpha())
             Torpedoexplosion.images.append(pygame.image.load(os.path.join("data","torpedoexplosion4.png")).convert_alpha())
             Torpedoexplosion.images.append(pygame.image.load(os.path.join("data","torpedoexplosion5.png")).convert_alpha())
+            Torpedo.images.append(pygame.image.load(os.path.join("data","torpedo.png")))
             Plane.images.append(pygame.image.load(os.path.join("data", "fighter1.png")))            
             Plane.images.append(pygame.image.load(os.path.join("data", "fighter2.png")))
+            Plane.images.append(pygame.image.load(os.path.join("data", "bomber1.png")))
             rosa = Plane.images[1].get_at((0,0))
+            andresrosa = Torpedo.images[0].get_at((0,0))
             Plane.images[0].set_colorkey(rosa)            
-            Plane.images[1].set_colorkey(rosa)      
-            
+            Plane.images[1].set_colorkey(rosa)
+            Plane.images[2].set_colorkey(rosa)
+            Torpedo.images[0].set_colorkey(andresrosa)      
+        
             # load other resources here
         except:
             print("pygame error:", pygame.get_error())
@@ -889,13 +931,16 @@ class PygView(object):
         Player.groups = self.allgroup, self.playergroup
         Hitpointbar.groups = self.hitpointbargroup
         Plane.groups = self.allgroup, self.planegroup
+        Bomber.groups = self.allgroup, self.planegroup
+        Fighter.groups = self.allgroup, self.planegroup
         Torpedo.groups = self.allgroup, self.torpedogroup
         Torpedoexplosion.groups = self.allgroup,
         EnemySub.groups = self.allgroup, self.enemysubgroup
         self.enemysub1 = EnemySub(x=150, y=150, imagenr = 5)
         self.enemysub2 = EnemySub(x=350, y=250, imagenr = 5)
         self.player1 = Player(x=400, y=200, dx=0, dy=0, layer=5, imagenr = 4) # over balls layer
-        self.plane1 = Plane(x=50, y=50)
+        self.fighter1 = Fighter(x=50, y=50)
+        self.bomber1 = Bomber(x=100, y=100)
         
 
     def run(self):
