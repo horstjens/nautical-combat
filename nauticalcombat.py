@@ -1050,7 +1050,7 @@ class PygView(object):
             # --------- next frame ---------------
             pygame.display.flip()
             # update status text 
-            pygame.display.set_caption("Press ESC to quit"+"mapzoom: {}".format(self.mapzoom))
+            pygame.display.set_caption("Press ESC to quit mapzoom: {} fps: {}".format(self.mapzoom, self.clock.get_fps()))
             
         pygame.quit()
 
