@@ -449,6 +449,18 @@ class FlyingObject(pygame.sprite.Sprite):
           self.image = pygame.transform.rotate(self.image0, self.angle)
           self.rect = self.image.get_rect()
           self.rect.center = self.oldcenter
+          
+    def calculate_screenpos(self, mapzoom, mapdx, mapdy):
+        """takes the .X and .Y attribute of the sprite (the world coordinates)
+           and calcualtes .x and .y and screenrect out of it, according to mapzoom and current mapview"""
+        dividor = 1
+        if mapzoom == 2:
+            dividor = 2
+        elif mapzoom == 3:
+            dividor = 4
+        self.x = self.X / dividor + mapdx
+        self.y = self.Y / dividor + mapdy
+        self.rect.center = ( round(self.x,0), round(self.y,0))
 
     def update(self, seconds):
         """calculate movement, position and bouncing on edge"""
@@ -458,17 +470,18 @@ class FlyingObject(pygame.sprite.Sprite):
             self.dx *= self.friction  # make the Sprite slower over time
         if abs(self.dy) > 0 :
             self.dy *= self.friction
-        self.x += self.dx * seconds
-        self.y += self.dy * seconds
-        self.rect.centerx = round(self.x, 0)
-        self.rect.centery = round(self.y, 0)
+        self.X += self.dx * seconds
+        self.Y += self.dy * seconds
+        
+        #self.rect.centerx = round(self.x, 0)
+        #self.rect.centery = round(self.y, 0)
         # alive?
         if self.hitpoints < 1:
             self.kill()
 
 
 
-class Plane(FlyingObject):
+class PatrolObecjet(FlyingObject):
     images = []
     
     """A plane that patrols the skies"""
@@ -499,10 +512,10 @@ class Plane(FlyingObject):
             self.dx *= self.friction  # make the Sprite slower over time
         if abs(self.dy) > 0 :
             self.dy *= self.friction
-        self.x += self.dx * seconds
-        self.y += self.dy * seconds
-        self.rect.centerx = round(self.x, 0)
-        self.rect.centery = round(self.y, 0)
+        self.X += self.dx * seconds
+        self.Y += self.dy * seconds
+        #self.rect.centerx = round(self.x, 0)
+        #self.rect.centery = round(self.y, 0)
         #if self.point == 1:
         #    if self.x>150:
         #        self.point = 2
@@ -546,7 +559,7 @@ class Plane(FlyingObject):
                 tmp = self.newpoint
                 self.newpoint += 1
                 self.oldpoint = tmp
-            (self.x, self.y) = self.path[self.oldpoint]
+            (self.X, self.Y) = self.path[self.oldpoint]
             pointwechsel = False
             #print("oldpoint, newpoint", self.oldpoint, self.newpoint)
             self.dx = self.path[self.newpoint][0] - self.path[self.oldpoint][0]
@@ -562,7 +575,7 @@ class Plane(FlyingObject):
         if self.hitpoints < 1:
             self.kill()
 
-class Fighter(Plane):
+class Fighter(PatrolObecjet):
     """Fast but fragile Plane armed with machine guns"""
     def init2(self):
         self.hitpointsfull = 75
@@ -579,7 +592,7 @@ class Fighter(Plane):
         self.oldpoint = 0
         Hitpointbar(self.number)
         
-class Bomber(Plane):
+class Bomber(PatrolObecjet):
     """Plane that drops explosive bombs"""
     def init2(self):
         self.hitpointsfull = 90
@@ -628,11 +641,30 @@ class Hitpointbar(pygame.sprite.Sprite):
             pygame.draw.rect(self.image, self.color, (0,0,self.boss.rect.width,self.height),1)
             self.rect = self.image.get_rect()
             self.oldpercent = 0
+            self.X = 0
+            self.Y = 0
+            self.x = 0
+            self.y = 0
             
+        def calculate_screenpos(self, mapzoom, mapdx, mapdy):
+            """takes the .X and .Y attribute of the sprite (the world coordinates)
+               and calcualtes .x and .y and screenrect out of it, according to mapzoom and current mapview"""
+            dividor = 1
+            if mapzoom == 2:
+                dividor = 2
+            elif mapzoom == 3:
+                dividor = 4
+            self.x = self.X / dividor + mapdx
+            self.y = self.Y / dividor + mapdy
+            self.rect.center = ( round(self.x,0), round(self.y,0))
+
             
         def update(self, time):
-            self.rect.centerx = self.boss.rect.centerx
-            self.rect.centery = self.boss.rect.centery - self.boss.rect.height //2 - self.ydistance
+            #self.rect.centerx = self.boss.rect.centerx
+            #self.rect.centery = self.boss.rect.centery - self.boss.rect.height //2 - self.ydistance
+            self.X = self.boss.X
+            self.Y = self.boss.Y - self.boss.rect.height //2 - self.ydistance
+            
             self.percent = self.boss.hitpoints / self.boss.hitpointsfull * 1.0
             if self.percent != self.oldpercent:
                 pygame.draw.rect(self.image, (0,0,0), (1,1,self.boss.rect.width-2,self.height-2)) # fill black
@@ -849,12 +881,14 @@ class PygView(object):
     def zoom_in(self):
         if self.mapzoom < 3:
             self.mapzoom += 1
+            self.background.fill((0,128,0))
             self.background.blit(PygView.images[self.mapzoom], (0,0))
          
         
     def zoom_out(self):
-        if self.mapzoom > 0:
+        if self.mapzoom > 1:
             self.mapzoom -= 1
+            self.background.fill((0,128,0))
             self.background.blit(PygView.images[self.mapzoom], (0,0))
             
            
@@ -878,14 +912,14 @@ class PygView(object):
             Torpedoexplosion.images.append(pygame.image.load(os.path.join("data","torpedoexplosion4.png")).convert_alpha())
             Torpedoexplosion.images.append(pygame.image.load(os.path.join("data","torpedoexplosion5.png")).convert_alpha())
             Torpedo.images.append(pygame.image.load(os.path.join("data","torpedo.png")))
-            Plane.images.append(pygame.image.load(os.path.join("data", "fighter1.png")))            
-            Plane.images.append(pygame.image.load(os.path.join("data", "fighter2.png")))
-            Plane.images.append(pygame.image.load(os.path.join("data", "bomber1.png")))
-            rosa = Plane.images[1].get_at((0,0))
+            PatrolObecjet.images.append(pygame.image.load(os.path.join("data", "fighter1.png")))            
+            PatrolObecjet.images.append(pygame.image.load(os.path.join("data", "fighter2.png")))
+            PatrolObecjet.images.append(pygame.image.load(os.path.join("data", "bomber1.png")))
+            rosa = PatrolObecjet.images[1].get_at((0,0))
             andresrosa = Torpedo.images[0].get_at((0,0))
-            Plane.images[0].set_colorkey(rosa)            
-            Plane.images[1].set_colorkey(rosa)
-            Plane.images[2].set_colorkey(rosa)
+            PatrolObecjet.images[0].set_colorkey(rosa)            
+            PatrolObecjet.images[1].set_colorkey(rosa)
+            PatrolObecjet.images[2].set_colorkey(rosa)
             Torpedo.images[0].set_colorkey(andresrosa)      
         
             # load other resources here
@@ -930,7 +964,7 @@ class PygView(object):
         # ----- assign Sprite class to sprite Groups ------- 
         Player.groups = self.allgroup, self.playergroup
         Hitpointbar.groups = self.hitpointbargroup
-        Plane.groups = self.allgroup, self.planegroup
+        PatrolObecjet.groups = self.allgroup, self.planegroup
         Bomber.groups = self.allgroup, self.planegroup
         Fighter.groups = self.allgroup, self.planegroup
         Torpedo.groups = self.allgroup, self.torpedogroup
@@ -943,9 +977,14 @@ class PygView(object):
         self.bomber1 = Bomber(x=100, y=100)
         
 
+
+        
+
     def run(self):
         """The mainloop"""
         self.mapdx, self.mapdy = 0, 0
+        self.mapzoom = 2
+        self.zoom_in()
         running = True
         while running:
             for event in pygame.event.get():
@@ -1043,6 +1082,11 @@ class PygView(object):
             #self.allgroup.clear(screen, background)
             self.allgroup.update(seconds) # would also work with ballgroup
             self.hitpointbargroup.update(seconds) # to avoid "bouncing" hitpointbars
+            for sprite in self.allgroup:
+                sprite.calculate_screenpos(self.mapzoom, self.mapdx, self.mapdy)
+            for sprite in self.hitpointbargroup:
+                sprite.calculate_screenpos(self.mapzoom, self.mapdx, self.mapdy)
+            #self.allgroup.caculate_screenpos(self.mapzoom, self.mapdx, self.mapdy)
             self.allgroup.draw(self.screen)      
             self.hitpointbargroup.draw(self.screen)     
             # -------  write text over everything  -----------------
