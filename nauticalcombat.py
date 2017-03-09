@@ -396,6 +396,8 @@ class FlyingObject(pygame.sprite.Sprite):
         self.ddx = 0 # acceleration and slowing down. set dx and dy to 0 first!
         self.ddy = 0
         self.friction = friction # 1.0 means no friction at all
+        self.swimming = False
+        self.diving = False
         if color is None: # create random color if no color is given
             self.color = (random.randint(0,255), random.randint(0,255), random.randint(0,255))
         else:
@@ -481,10 +483,11 @@ class FlyingObject(pygame.sprite.Sprite):
 
 
 
-class PatrolObecjet(FlyingObject):
+
+class PatrolObject(FlyingObject):
     images = []
     
-    """A plane that patrols the skies"""
+    """A PatrolObject that patrols the skies"""
     def init2(self):
         self.hitpointsfull = 75
         self.hitpoints = 75
@@ -522,6 +525,7 @@ class PatrolObecjet(FlyingObject):
         #        (self.x,self.y) = self.path[1]
         #        self.dy = -10
         # x
+        self.turn2heading()
         if self.path[self.oldpoint][0] < self.path[self.newpoint][0]:
             dirx = 1
         elif self.path[self.oldpoint][0] > self.path[self.newpoint][0]:
@@ -566,7 +570,8 @@ class PatrolObecjet(FlyingObject):
             self.dy = self.path[self.newpoint][1] - self.path[self.oldpoint][1]
             tmpvec = Vec2d(self.dx,self.dy).normalized()
             self.dx = tmpvec.x * self.speed
-            self.dy = tmpvec.y * self.speed             
+            self.dy = tmpvec.y * self.speed
+            self.turn2heading()             
 
         
         
@@ -575,7 +580,7 @@ class PatrolObecjet(FlyingObject):
         if self.hitpoints < 1:
             self.kill()
 
-class Fighter(PatrolObecjet):
+class Fighter(PatrolObject):
     """Fast but fragile Plane armed with machine guns"""
     def init2(self):
         self.hitpointsfull = 75
@@ -592,7 +597,7 @@ class Fighter(PatrolObecjet):
         self.oldpoint = 0
         Hitpointbar(self.number)
         
-class Bomber(PatrolObecjet):
+class Bomber(PatrolObject):
     """Plane that drops explosive bombs"""
     def init2(self):
         self.hitpointsfull = 90
@@ -614,16 +619,30 @@ class Bomber(PatrolObecjet):
         self.image0 = self.images[2]
         self.width = self.image.get_rect().width
         self.height = self.image.get_rect().height    
-        
-class SwimmingObject(FlyingObject):
+
+class Destroyer(PatrolObject):
     
-    def __init2(self):  
-        self.hitpoints = 150
-        self.hitpointsfull = 150
-        self.damage = 10
-        self.speed = 50
-        self.turnspeed = 5
+    def init2(self):
+        self.hitpointsfull = 200
+        self.hitpoints = 200
+        self.speed = 90
+        self.turnspeed = 7
+        self.damage = 20
+        self.dx = 10
+        self.dy = 0
+        self.x = 100
+        self.y = 100
+        self.path = [(110,110), (400,100), (500, 200), (200, 300)]
+        self.newpoint = 1
+        self.oldpoint = 0
+        Hitpointbar(self.number)
         
+    def create_image(self):
+        self.image = self.images[3]
+        self.image0 = self.images[3]
+        self.width = self.image.get_rect().width
+        self.height = self.image.get_rect().height
+            
 class Hitpointbar(pygame.sprite.Sprite):
         """shows a bar with the hitpoints of a Boss sprite
         Boss needs a unique number in FlyingObject.numbers,
@@ -695,12 +714,13 @@ class Explosion(FlyingObject):
         self.image = self.image.convert_alpha() # faster blitting with transparent color
         self.rect= self.image.get_rect()        
 
-class EnemySub(SwimmingObject):
+class EnemySub(FlyingObject):
     """a big pygame Sprite with high mass"""
         
     def init2(self):
         self.hitpointsfull = 150
         self.hitpoints = 150
+        self.swimming = True
         self.mass = 150
         checked = False
         self.dx = 0#random.random() * 10 - 50
@@ -778,7 +798,7 @@ class Torpedo(FlyingObject):
         self.height = self.image.get_rect().height
         
         
-class Player(SwimmingObject):
+class Player(FlyingObject):
     """player-controlled character with relative movement"""
         
     def init2(self):
@@ -912,14 +932,16 @@ class PygView(object):
             Torpedoexplosion.images.append(pygame.image.load(os.path.join("data","torpedoexplosion4.png")).convert_alpha())
             Torpedoexplosion.images.append(pygame.image.load(os.path.join("data","torpedoexplosion5.png")).convert_alpha())
             Torpedo.images.append(pygame.image.load(os.path.join("data","torpedo.png")))
-            PatrolObecjet.images.append(pygame.image.load(os.path.join("data", "fighter1.png")))            
-            PatrolObecjet.images.append(pygame.image.load(os.path.join("data", "fighter2.png")))
-            PatrolObecjet.images.append(pygame.image.load(os.path.join("data", "bomber1.png")))
-            rosa = PatrolObecjet.images[1].get_at((0,0))
+            PatrolObject.images.append(pygame.image.load(os.path.join("data", "fighter1.png")))            
+            PatrolObject.images.append(pygame.image.load(os.path.join("data", "fighter2.png")))
+            PatrolObject.images.append(pygame.image.load(os.path.join("data", "bomber1.png")))
+            PatrolObject.images.append(pygame.image.load(os.path.join("data", "destroyer.png")))            
+            rosa = PatrolObject.images[1].get_at((0,0))
             andresrosa = Torpedo.images[0].get_at((0,0))
-            PatrolObecjet.images[0].set_colorkey(rosa)            
-            PatrolObecjet.images[1].set_colorkey(rosa)
-            PatrolObecjet.images[2].set_colorkey(rosa)
+            PatrolObject.images[0].set_colorkey(rosa)            
+            PatrolObject.images[1].set_colorkey(rosa)
+            PatrolObject.images[2].set_colorkey(rosa)
+            PatrolObject.images[3].set_colorkey(rosa)
             Torpedo.images[0].set_colorkey(andresrosa)      
         
             # load other resources here
@@ -960,25 +982,24 @@ class PygView(object):
         self.torpedogroup = pygame.sprite.Group()
         self.playergroup = pygame.sprite.Group()
         self.enemysubgroup = pygame.sprite.Group()
-        self.planegroup = pygame.sprite.Group()
+        self.PatrolObjectgroup = pygame.sprite.Group()
         # ----- assign Sprite class to sprite Groups ------- 
         Player.groups = self.allgroup, self.playergroup
         Hitpointbar.groups = self.hitpointbargroup
-        PatrolObecjet.groups = self.allgroup, self.planegroup
-        Bomber.groups = self.allgroup, self.planegroup
-        Fighter.groups = self.allgroup, self.planegroup
+        PatrolObject.groups = self.allgroup, self.PatrolObjectgroup
+        Bomber.groups = self.allgroup, self.PatrolObjectgroup
+        Fighter.groups = self.allgroup, self.PatrolObjectgroup
         Torpedo.groups = self.allgroup, self.torpedogroup
         Torpedoexplosion.groups = self.allgroup,
         EnemySub.groups = self.allgroup, self.enemysubgroup
+        Destroyer.groups = self.allgroup, self.PatrolObjectgroup
         self.enemysub1 = EnemySub(x=150, y=150, imagenr = 5)
         self.enemysub2 = EnemySub(x=350, y=250, imagenr = 5)
         self.player1 = Player(x=400, y=200, dx=0, dy=0, layer=5, imagenr = 4) # over balls layer
         self.fighter1 = Fighter(x=50, y=50)
         self.bomber1 = Bomber(x=100, y=100)
-        
-
-
-        
+        self.destroyer1 = Destroyer(x=100, y=100)
+                
 
     def run(self):
         """The mainloop"""
@@ -987,6 +1008,7 @@ class PygView(object):
         self.zoom_in()
         running = True
         while running:
+            print("simon nervt")
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False 
@@ -1094,7 +1116,7 @@ class PygView(object):
             # --------- next frame ---------------
             pygame.display.flip()
             # update status text 
-            pygame.display.set_caption("Press ESC to quit"+"mapzoom: {}".format(self.mapzoom))
+            pygame.display.set_caption("Press ESC to quit mapzoom: {} fps: {}".format(self.mapzoom, self.clock.get_fps()))
             
         pygame.quit()
 
