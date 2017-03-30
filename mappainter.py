@@ -9,6 +9,7 @@ idea: tile map viewer of generated files by terrain_generator2.py
 
 
 import pygame 
+import random
 
 def draw_examples(background):
     """painting on the background surface"""
@@ -24,6 +25,9 @@ def draw_examples(background):
     # pygame.draw.arc(Surface, color, Rect, start_angle, stop_angle, width=1): return Rect
     pygame.draw.arc(background, (0,150,0),(400,10,150,100), 0, 3.14) # radiant instead of grad
     #return background # not necessary to return the surface, it's already in the memory
+
+
+    
 
 def write(background, text, x=50, y=150, color=(0,0,0),
           fontsize=None, center=False):
@@ -105,7 +109,16 @@ class PygView(object):
        # self.ball2 = Ball(x=200, y=100) # create another Ball object (not a pygame Sprite)
        # self.ballgroup = [ self.ball1, self.ball2 ] # put all "Sprites" into this list
         
-
+    def changeTerrain(self, delta=0):
+        """changes terrain under mouse cursor:
+           -1 is digging, 1 is building"""
+        x, y = pygame.mouse.get_pos()
+        char = x // self.tilew
+        line = y // self.tileh
+        pygame.draw.rect(self.screen, (random.randint(0,255),0,0),
+                        (char * self.tilew, line * self.tileh, 
+                         self.tilew, self.tileh), 5)
+    
 
     def run(self):
         """The mainloop"""
@@ -115,28 +128,27 @@ class PygView(object):
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False 
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    #print(event.button)
+                    # 1... left mouse button
+                    # 3... right mouse button
+                    if event.button == 1:
+                        changeTerrain(-1)
+                    elif event.button == 3:
+                        changeTerrain(1)
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
                         running = False
                     #if event.key == pygame.K_b:
                       #  self.ballgroup.append(Ball()) # add balls!
             # end of event handler
-           # milliseconds = self.clock.tick(self.fps) #
-           # seconds = milliseconds / 1000
-           # self.playtime += seconds
+            # milliseconds = self.clock.tick(self.fps) #
+            # seconds = milliseconds / 1000
+            # self.playtime += seconds
             # delete everything on screen
             self.screen.blit(self.background, (0, 0)) 
-            # write text below sprites
-            #write(self.screen, "FPS: {:6.3}  PLAYTIME: {:6.3} SECONDS".format(
-            #               self.clock.get_fps(), self.playtime))
-            # not-pygame-sprites
-            #for myball in self.ballgroup:
-            #    myball.update(seconds)
-            #for myball in self.ballgroup:
-            #    myball.blit(self.screen)
-            # write text over everything 
-            #write(self.screen, "Press b to add another ball", x=self.width//2, y=250, center=True)
-            # next frame
+            self.changeTerrain()
+         
             pygame.display.flip()
             
         pygame.quit()
