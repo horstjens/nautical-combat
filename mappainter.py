@@ -84,15 +84,21 @@ class PygView(object):
         for y in range(self.lines):
             line = []
             for x in range(self.chars):
-                line.append(128)
+                line.append(120)
             self.tiles.append(line)
-                
-        
+
         # blaue kasterln
         for line in range(self.lines):
             for char in range(self.chars):
+                value = self.tiles[line][char]
+                if value < 128:
+                    color = (0,0,value*2)
+                elif value < 192:
+                    color = (0, value, 0)
+                else:
+                    color = (value, value, value)
                 pygame.draw.rect(self.background,
-                                (0,0,self.tiles[line][char]),
+                                color,
                                 (self.tilew * char, 
                                  self.tileh * line, self.tilew, self.tileh))
         # grünes gitter malen
@@ -115,7 +121,18 @@ class PygView(object):
         pygame.draw.rect(self.screen, (random.randint(0,255),0,0),
                         (char * self.tilew, line * self.tileh, 
                          self.tilew, self.tileh), 5)
-    
+        
+        value = self.tiles[line][char]
+        
+        if delta != 0:
+            print("old value:", value)
+            value += delta
+            value = min(255, value)
+            value = max(0, value)
+            self.tiles[line][char] = value
+            print("new value:", self.tiles[line][char])
+            self.paint()
+            
 
     def run(self):
         """The mainloop"""
@@ -125,19 +142,23 @@ class PygView(object):
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False 
-                elif event.type == pygame.MOUSEBUTTONDOWN:
+                #elif event.type == pygame.MOUSEBUTTONDOWN:
                     #print(event.button)
                     # 1... left mouse button
                     # 3... right mouse button
-                    if event.button == 1:
-                        self.changeTerrain(-1)
-                    elif event.button == 3:
-                        self.changeTerrain(1)
+                 #   if event.button == 1:
+                  #      self.changeTerrain(-1)
+                   # elif event.button == 3:
+                    #    self.changeTerrain(1)
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
                         running = False
                     #if event.key == pygame.K_b:
                       #  self.ballgroup.append(Ball()) # add balls!
+            if pygame.mouse.get_pressed()[0]:
+                self.changeTerrain(-1)  # left click
+            if pygame.mouse.get_pressed()[2]:
+                self.changeTerrain(1) # right click
             # end of event handler
             # milliseconds = self.clock.tick(self.fps) #
             # seconds = milliseconds / 1000
