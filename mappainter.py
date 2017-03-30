@@ -58,42 +58,21 @@ class PygView(object):
         self.filename = filename
         self.tilew = tilew
         self.tileh = tileh
-        self.lines = []
-        lines = 32
-        chars = 64
-        for y in range(lines):
-            line = []
-            for x in range(chars):
-                line.append(128)
-            self.lines.append(line)
         
+        self.lines = 32
+        self.chars = 64
+        self.tiles = []
                 
         
-        print(lines, chars) 
-        print(self.lines)
-        PygView.width = chars * self.tilew
-        PygView.height = lines * self.tileh
+        print(self.lines, self.chars) 
+        print(self.tiles)
+        PygView.width = self.chars * self.tilew
+        PygView.height = self.lines * self.tileh
         
         self.screen = pygame.display.set_mode((self.width, self.height), pygame.DOUBLEBUF)
         self.background = pygame.Surface(self.screen.get_size()).convert()  
         self.background.fill((255,255,255)) # fill background white
-        # blaue kasterln
-        for line in range(lines):
-            for char in range(chars):
-                pygame.draw.rect(self.background,
-                                (0,0,self.lines[line][char]),
-                                (self.tilew * char, 
-                                 self.tileh * line, tilew, tileh))
-        # grünes gitter malen
-        for line in range(lines):
-            pygame.draw.line(self.background, (0,255,0),
-                             (0, self.tileh * line),
-                             (PygView.width, self.tileh * line) )
-        for char in range(chars):
-            pygame.draw.line(self.background, (0,255,0),
-                            (self.tilew * char, 0),
-                            (self.tilew * char, PygView.height) )
-                                                         
+                                          
         #self.clock = pygame.time.Clock()
         #self.fps = fps
         #self.playtime = 0.0
@@ -102,13 +81,31 @@ class PygView(object):
 
     def paint(self):
         """painting on the surface"""
-        # make an interesting background 
-        #draw_examples(self.background)
-        # create (non-pygame) Sprites. 
-       #self.ball1 = Ball(x=100, y=100) # creating the Ball object (not a pygame Sprite)
-       # self.ball2 = Ball(x=200, y=100) # create another Ball object (not a pygame Sprite)
-       # self.ballgroup = [ self.ball1, self.ball2 ] # put all "Sprites" into this list
+        for y in range(self.lines):
+            line = []
+            for x in range(self.chars):
+                line.append(128)
+            self.tiles.append(line)
+                
         
+        # blaue kasterln
+        for line in range(self.lines):
+            for char in range(self.chars):
+                pygame.draw.rect(self.background,
+                                (0,0,self.tiles[line][char]),
+                                (self.tilew * char, 
+                                 self.tileh * line, self.tilew, self.tileh))
+        # grünes gitter malen
+        for line in range(self.lines):
+            pygame.draw.line(self.background, (0,255,0),
+                             (0, self.tileh * line),
+                             (PygView.width, self.tileh * line) )
+        for char in range(self.chars):
+            pygame.draw.line(self.background, (0,255,0),
+                            (self.tilew * char, 0),
+                            (self.tilew * char, PygView.height) )
+                      
+
     def changeTerrain(self, delta=0):
         """changes terrain under mouse cursor:
            -1 is digging, 1 is building"""
@@ -133,9 +130,9 @@ class PygView(object):
                     # 1... left mouse button
                     # 3... right mouse button
                     if event.button == 1:
-                        changeTerrain(-1)
+                        self.changeTerrain(-1)
                     elif event.button == 3:
-                        changeTerrain(1)
+                        self.changeTerrain(1)
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
                         running = False
