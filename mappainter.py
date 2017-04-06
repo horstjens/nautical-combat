@@ -11,21 +11,6 @@ idea: tile map viewer of generated files by terrain_generator2.py
 import pygame 
 import random
 
-def draw_examples(background):
-    """painting on the background surface"""
-    #------- try out some pygame draw functions --------
-    # pygame.draw.line(Surface, color, start, end, width) 
-    pygame.draw.line(background, (0,255,0), (10,10), (50,100))
-    # pygame.draw.rect(Surface, color, Rect, width=0): return Rect
-    pygame.draw.rect(background, (0,255,0), (50,50,100,25)) # rect: (x1, y1, width, height)
-    # pygame.draw.circle(Surface, color, pos, radius, width=0): return Rect
-    pygame.draw.circle(background, (0,200,0), (200,50), 35)
-    # pygame.draw.polygon(Surface, color, pointlist, width=0): return Rect
-    pygame.draw.polygon(background, (0,180,0), ((250,100),(300,0),(350,50)))
-    # pygame.draw.arc(Surface, color, Rect, start_angle, stop_angle, width=1): return Rect
-    pygame.draw.arc(background, (0,150,0),(400,10,150,100), 0, 3.14) # radiant instead of grad
-    #return background # not necessary to return the surface, it's already in the memory
-
 
     
 
@@ -46,6 +31,7 @@ def write(background, text, x=50, y=150, color=(0,0,0),
 class PygView(object):
     width = 0
     height = 0
+    maxdelta = 10
   
     def __init__(self, width=640, height=400, fps=30, filename = "level1.txt", tilew = 20, tileh = 20):
         """Initialize pygame, window, background, font,...
@@ -112,17 +98,49 @@ class PygView(object):
                             (self.tilew * char, PygView.height) )
                       
 
-    def changeTerrain(self, delta=0):
-        """changes terrain under mouse cursor:
-           -1 is digging, 1 is building"""
+    def get_info(self):
+        """returns tile under mouse cursor: x, y, z"""
         x, y = pygame.mouse.get_pos()
         char = x // self.tilew
         line = y // self.tileh
+        value = self.tiles[line][char]
+        return char, line, value
+        
+    def check_around(self, char, line ):
+        """get z value of surrounding tiles, correct them if necessary"""
+        maxdelta = PygView.maxdelta
+        value = self.tiles[line][char]
+        for y in [-1,0,1]:
+            for x in [-1,0,1]:
+                if x == 0 and y == 0:
+                    continue
+                try:
+                    v = self.tiles[line+y][char+x]
+                except:
+                    continue 
+                print(x,y,value, v)
+                if abs(value-v) > maxdelta:
+                    
+                    if value > v:
+                        self.tiles[line+y][char+x] = value - maxdelta
+                    else:
+                        self.tiles[line+y][char+x] = value + maxdelta
+                    self.check_around(char+x, line+y)
+                            
+        
+
+    def changeTerrain(self, delta=0):
+        """changes terrain under mouse cursor:
+           -1 is digging, 1 is building"""
+        #x, y = pygame.mouse.get_pos()
+        #char = x // self.tilew
+        #line = y // self.tileh
+        #value = self.tiles[line][char]
+        char, line, value = self.get_info()
+        
         pygame.draw.rect(self.screen, (random.randint(0,255),0,0),
                         (char * self.tilew, line * self.tileh, 
                          self.tilew, self.tileh), 5)
-        
-        value = self.tiles[line][char]
         
         if delta != 0:
             print("old value:", value)
@@ -132,42 +150,43 @@ class PygView(object):
             self.tiles[line][char] = value
             print("new value:", self.tiles[line][char])
             self.paint()
+            self.check_around(char, line)
+        
             
 
     def run(self):
         """The mainloop"""
-        
+        #self.playtime = 0
         running = True
         while running:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False 
-                #elif event.type == pygame.MOUSEBUTTONDOWN:
-                    #print(event.button)
-                    # 1... left mouse button
-                    # 3... right mouse button
-                 #   if event.button == 1:
-                  #      self.changeTerrain(-1)
-                   # elif event.button == 3:
-                    #    self.changeTerrain(1)
                 elif event.type == pygame.KEYDOWN:
+                    #print(event.key)
                     if event.key == pygame.K_ESCAPE:
                         running = False
-                    #if event.key == pygame.K_b:
-                      #  self.ballgroup.append(Ball()) # add balls!
+                    if event.key == pygame.K_PLUS or event.key == pygame.K_KP_PLUS:
+                        self.changeTerrain(10)
+                    if event.key == pygame.K_MINUS or event.key == pygame.K_KP_MINUS:
+                        self.changeTerrain(-10)
+                        
+                    
             if pygame.mouse.get_pressed()[0]:
                 self.changeTerrain(-1)  # left click
             if pygame.mouse.get_pressed()[2]:
                 self.changeTerrain(1) # right click
             # end of event handler
-            # milliseconds = self.clock.tick(self.fps) #
-            # seconds = milliseconds / 1000
-            # self.playtime += seconds
+            #milliseconds = self.clock.tick(self.fps) #
+            #seconds = milliseconds / 1000
+            #self.playtime += seconds
             # delete everything on screen
             self.screen.blit(self.background, (0, 0)) 
             self.changeTerrain()
          
             pygame.display.flip()
+            (x,y,z) = self.get_info()
+            pygame.display.set_caption("--- MAP-VIEWER ---x: {} y: {} z: {}".format(x,y,z))
             
         pygame.quit()
 
