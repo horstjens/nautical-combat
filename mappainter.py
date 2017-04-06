@@ -170,8 +170,22 @@ class PygView(object):
                         self.changeTerrain(10)
                     if event.key == pygame.K_MINUS or event.key == pygame.K_KP_MINUS:
                         self.changeTerrain(-10)
-                        
+                    if event.key == pygame.K_F4:
+                        # save into level.txt
+                        linenr = 0
+                        #with open("level.txt", "w") as f:
+                        #    for line in self.tiles:
+                        #        linenr += 1
+                        #        print(linenr, line)
+                        #        f.write(str(line)+"\n")
+                        #print("level saved as level.txt")
+                        nr = 0
+                        for line in self.tiles:
+                            nr +=1
+                            print(nr, line)
+
                     
+            
             if pygame.mouse.get_pressed()[0]:
                 self.changeTerrain(-1)  # left click
             if pygame.mouse.get_pressed()[2]:
@@ -186,7 +200,7 @@ class PygView(object):
          
             pygame.display.flip()
             (x,y,z) = self.get_info()
-            pygame.display.set_caption("--- MAP-VIEWER ---x: {} y: {} z: {}".format(x,y,z))
+            pygame.display.set_caption("--- MAP-VIEWER F4=save---x: {} y: {} z: {}".format(x,y,z))
             
         pygame.quit()
 
