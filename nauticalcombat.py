@@ -464,7 +464,7 @@ class FlyingObject(pygame.sprite.Sprite):
         self.y = self.Y / dividor + mapdy
         self.rect.center = ( round(self.x,0), round(self.y,0))
 
-    def update(self, seconds):
+    def update(self, seconds, mapzoom):
         """calculate movement, position and bouncing on edge"""
         self.dx += self.ddx * self.speed
         self.dy += self.ddy * self.speed
@@ -508,7 +508,7 @@ class PatrolObject(FlyingObject):
         self.width = self.image.get_rect().width
         self.height = self.image.get_rect().height
         
-    def update(self, seconds):
+    def update(self, seconds, mapzoom):
         self.dx += self.ddx * self.speed
         self.dy += self.ddy * self.speed
         if abs(self.dx) > 0 : 
@@ -609,7 +609,7 @@ class Bomber(PatrolObject):
         self.dy = 40
         self.x = 50
         self.y = 50
-        self.path = [(100,100),(100,400),(400,400),(400,100)]
+        self.path = [Vec2d(100,100),Vec2d(100,400),Vec2d(400,400),Vec2d(400,100)]
         self.newpoint = 1
         self.oldpoint = 0
         Hitpointbar(self.number)
@@ -678,7 +678,7 @@ class Hitpointbar(pygame.sprite.Sprite):
             self.rect.center = ( round(self.x,0), round(self.y,0))
 
             
-        def update(self, time):
+        def update(self, time, mapzoom):
             #self.rect.centerx = self.boss.rect.centerx
             #self.rect.centery = self.boss.rect.centery - self.boss.rect.height //2 - self.ydistance
             self.X = self.boss.X
@@ -747,7 +747,7 @@ class Torpedoexplosion(FlyingObject):
         self.picturetime = 0.2 # how long one picture is visible
         self.age = 0
 
-    def update(self, seconds):
+    def update(self, seconds, mapzoom):
         super(Torpedoexplosion, self).update(seconds)
         self.lifetime -= seconds # aging
         self.age += seconds
@@ -778,7 +778,7 @@ class Torpedo(FlyingObject):
         self.angle = FlyingObject.numbers[self.bossnumber].angle
         self.rotate()
 
-    def update(self, seconds):
+    def update(self, seconds, mapzoom):
         super(Torpedo,self).update(seconds)
         self.lifetime -= seconds # aging
         if self.lifetime < 0:
@@ -819,8 +819,8 @@ class Player(FlyingObject):
         self.width = self.image.get_rect().width
         self.height = self.image.get_rect().height
                 
-    def update(self, seconds):
-          super(Player,self).update(seconds)
+    def update(self, seconds, mapzoom):
+          super(Player,self).update(seconds, mapzoom)
           self.rotate()        # use for player-controlled objects
           if self.cooldown > 0.0:
               self.cooldown -= seconds
@@ -896,7 +896,15 @@ class PygView(object):
         self.playtime = 0.0
         #self.loadresources()
         self.mapzoom = 5
-        
+        dx = Vec2d(20,15)
+        print("dx",dx)
+        ex = Vec2d(7,0)
+        print("ex", ex)
+        print("dx + ex:", dx+ex)  # vektor addition
+        print("dx * 2", dx * 2)   # vektor multiplizieren
+        print("x, y von dx", dx.x, dx.y) # attribute vom Vektor
+        print("senkrechte zu dx", dx.perpendicular())
+        print("distanz zw. dx und ex",  dx.get_distance(ex))
         
     def zoom_in(self):
         if self.mapzoom < 3:
@@ -1008,7 +1016,6 @@ class PygView(object):
         self.zoom_in()
         running = True
         while running:
-            print("simon nervt")
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False 
@@ -1102,8 +1109,8 @@ class PygView(object):
             # 
             # ----------- clear, draw , update, flip -----------------  
             #self.allgroup.clear(screen, background)
-            self.allgroup.update(seconds) # would also work with ballgroup
-            self.hitpointbargroup.update(seconds) # to avoid "bouncing" hitpointbars
+            self.allgroup.update(seconds, self.mapzoom) # would also work with ballgroup
+            self.hitpointbargroup.update(seconds, self.mapzoom) # to avoid "bouncing" hitpointbars
             for sprite in self.allgroup:
                 sprite.calculate_screenpos(self.mapzoom, self.mapdx, self.mapdy)
             for sprite in self.hitpointbargroup:
