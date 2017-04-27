@@ -17,7 +17,8 @@ class Settings(object):
     menu = {"root":["Play","Difficulty", "Help", "Credits", "Options","Quit"],
 
                        "Options":["Turn music off","Turn sound off","Change screen resolution"],
-                       "Play":["Campaign", "Training missions"],
+                       "Play":["Campaign", "Training missions", "Maps"],
+                       "Maps":["Edit", "View"],
                        "Training missions":["Practice Investigate", "Practice Torpedo attack", "Practice Deckgun attack", "Practice Escape", "Practice Navigate"],
                        "Difficulty":["Islands", "Patrol boats", "Patrol planes", "Current", "Reef", "Nautical Intel", "Enemy Intel"],
                        "Change screen resolution":["640x400", "720x480", "720x576", "800x640","1024x800", "1280x720", "1920x1080"],
@@ -237,7 +238,13 @@ class PygView(object):
                             print("starting game...")      
                         elif result == "Soundeffects":
                             text="Sonar sound by Argitoth\n URL:\nhttp://freesound.org/people/Argitoth/sounds/38701/"
-                            textscroller_vertical.PygView(text, self.width, self.height).run()                          
+                            textscroller_vertical.PygView(text, self.width, self.height).run() 
+                        elif result == "View":
+                            print("BLA")
+                            # zeige Galerie an zum wählen der Maps die man anschauen
+                        elif result == "Edit":
+                            print("BLA")
+                            # zeige Galerie zum wählen welches man ändern will                     
                         elif result == "Turn music off":
                             # music off
                             Settings.menu["Options"][0] = "Turn music on"
@@ -257,7 +264,7 @@ class PygView(object):
                             text="to win the game:\n shoot down enemies\n avoid catching bullets"
                             textscroller_vertical.PygView(text, self.width, self.height).run()
                         elif result == "Simon Heppner":
-                            text="-----SIMON HEPPNER-----\nWurde geboren 2006 am 3.5.\n(Also noch nicht gestorben)"
+                            text="-----SIMON HEPPNER-----\nWurde geboren 2006 am 3.5.\n(Also noch nicht gestorben)\nWebseite:\nhttp://simon.heppner.at"
                             textscroller_vertical.PygView(text, self.width, self.height, textcolor=(200,0,200), bg_filename=os.path.join("data","map.png")).run()
                         elif result == "Horst Jens":
                             text="-----Horst Jens-----\nIsst gerne Joghurt! :)"
