@@ -1,12 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
-author: Simon Heppner
-email: simon@heppner.at
-contact: see http://simon.heppner.at
-license: gpl, see http://www.gnu.org/licenses/gpl-3.0.de.html
-idea: tile map viewer of generated files by terrain_generator2.py
-"""
-
 
 import pygame 
 import random
@@ -33,7 +25,7 @@ class PygView(object):
     height = 0
     maxdelta = 10
   
-    def __init__(self, width=640, height=400, fps=30, filename = "level1.txt", tilew = 20, tileh = 20):
+    def __init__(self, width=640, height=400, fps=30, filename = "level.txt", tilew = 20, tileh = 20):
         """Initialize pygame, window, background, font,...
            default arguments 
         """
@@ -173,12 +165,12 @@ class PygView(object):
                     if event.key == pygame.K_F4:
                         # save into level.txt
                         linenr = 0
-                        #with open("level.txt", "w") as f:
-                        #    for line in self.tiles:
-                        #        linenr += 1
-                        #        print(linenr, line)
-                        #        f.write(str(line)+"\n")
-                        #print("level saved as level.txt")
+                        with open(self.filename, "w") as f:
+                            for line in self.tiles:
+                                linenr += 1
+                                print(linenr, line)
+                                f.write(str(line)+"\n")
+                        print("level saved as level.txt")
                         nr = 0
                         for line in self.tiles:
                             nr +=1
@@ -187,20 +179,15 @@ class PygView(object):
                     
             
             if pygame.mouse.get_pressed()[0]:
-                self.changeTerrain(-1)  # left click
+                self.changeTerrain(-1)
             if pygame.mouse.get_pressed()[2]:
-                self.changeTerrain(1) # right click
-            # end of event handler
-            #milliseconds = self.clock.tick(self.fps) #
-            #seconds = milliseconds / 1000
-            #self.playtime += seconds
-            # delete everything on screen
+                self.changeTerrain(1)
             self.screen.blit(self.background, (0, 0)) 
             self.changeTerrain()
          
             pygame.display.flip()
             (x,y,z) = self.get_info()
-            pygame.display.set_caption("--- MAP-VIEWER F4=save---x: {} y: {} z: {}".format(x,y,z))
+            pygame.display.set_caption("--- MAP-VIEWER ---x: {} y: {} z: {}  PRESS F4 TO SAVE".format(x,y,z))
             
         pygame.quit()
 
